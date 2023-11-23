@@ -22,8 +22,11 @@ courseList = []
     # get student object
     # get course name
     # check if course exists 
-        # if yes then enroll student
-        # if no then create course then enroll student
+        # if no - exit out of command and tell user to create course
+        # if yes - continue
+    # get grade of student
+    # add course and grade to students transcript
+    # enroll student
 
 def helpInput():
     print("Here are a list of all commands:")
@@ -34,31 +37,52 @@ def helpInput():
     print("help -- list all available commands")
     print("exit -- exits program")
     
-def createStudent():
+def listStudents():
+    for student in studentList:
+        print(f'{student.name}')
+    pass
+
+def addStudent():
     name = input("Enter students name:")
     id = input("Enter student id:")
     contactInfo = input("Enter students contact information:")
-    newStudent = Student.Student(name, id, contactInfo)
-    studentList.append(newStudent)
+    studentList.append(Student.Student(name, id, contactInfo))
+    print("Successfully added student")
 
-def createCourse():
+def addCourse():
     name = input("Enter course name:")
     id = input("Enter course ID:")
-
     courseList.append(Course.Course(name, id))
+    print("Successfully added course")
 
 def addGrade():
     studentName = input("Enter students name: ")
     student = getStudent(studentName)
     if student is None:
-        return
+        response = input()
+        if response == 'Y' or response == 'y':
+            addStudent()
+            student = getStudent(studentName)
+        else:
+            return
+
     courseName = input("Enter course name: ")
-    course = getCourse(courseName)
-    if course is None:
-        return
-    grade = input("Enter students grade: ")
-    student.inputGrade(grade, courseName)
-    course.enrollStudent(student)
+    while (courseName != 'quit'):
+        course = getCourse(courseName)
+        if course is None:
+            response = input()
+            if response == 'Y' or response == 'y':
+                addCourse()
+                course = getCourse(courseName)
+                
+            else:
+                return 
+        
+        grade = input("Enter students grade: ")
+        student.inputGrade(grade, courseName)
+        course.enrollStudent(student)
+        print('Successfully added grade for student')
+        courseName = input("Enter course name: ")
     
 
 def getStudent(searchName) -> Student:
@@ -66,7 +90,7 @@ def getStudent(searchName) -> Student:
         if student.name == searchName:
             return student        
     else:
-        print(f"{searchName} does not exist yet, please create student first")
+        print(f"{searchName} does not exist yet, would you like to add this student? (Y/N): ")
         return None
 
 def getCourse(searchName) -> Course:
@@ -74,7 +98,7 @@ def getCourse(searchName) -> Course:
         if course.name == searchName:
             return course
     else:
-        print(f"{searchName} does not exist yet, please create course first")
+        print(f"{searchName} does not exist yet, would you like to add this course? (Y/N):")
         return None
 
 def greetUser():
@@ -89,9 +113,10 @@ def default():
 def processCommand(command):
     commandCase = {
         'help': helpInput,
-        'create student': createStudent,
-        'create course': createCourse,
+        'add student': addStudent,
+        'add course': addCourse,
         'add grade': addGrade,
+        'list students': listStudents,
         'exit': sys.exit
     }
 
